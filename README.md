@@ -9,23 +9,23 @@
 ## Demo Script
 
 - Build app, run it
-  - `dotnet new mvc -o mvc-demo`
+  - `dotnet new mvc -o dotnet-demo`
   - `dotnet run`
   - Update app to show current time and environment variables, rerun it
 - Containerize the app, run in Docker
   - [Dockerfile](https://docs.docker.com/engine/reference/builder/)
-    - `docker image build -t mvc-demo-dockerfile .`
-    - `docker container run -p 80:80 mvc-demo-dockerfile`
+    - `docker image build -t dotnet-demo-dockerfile .`
+    - `docker container run -p 80:80 dotnet-demo-dockerfile`
   - [Buildpacks](https://buildpacks.io/)
     - `rm Dockerfile`
     - `rm obj`
     - `rm bin`
-    - `pack build mvc-demo-buildpacks`
-    - `docker container run -p 80:80 mvc-demo-buildpacks`
+    - `pack build dotnet-demo-buildpacks`
+    - `docker container run -p 80:80 dotnet-demo-buildpacks`
   - Push app to an [image registry](https://hub.docker.com/)
-    - `docker image tag mvc-demo-buildpacks fjb4/mvc-demo-buildpacks`
-    - `docker image push fjb4/mvc-demo-buildpacks`
-    - [View image on Docker Hub](https://hub.docker.com/repository/docker/fjb4/mvc-demo-buildpacks)
+    - `docker image tag dotnet-demo-buildpacks fjb4/dotnet-demo-buildpacks`
+    - `docker image push fjb4/dotnet-demo-buildpacks`
+    - [View image on Docker Hub](https://hub.docker.com/repository/docker/fjb4/dotnet-demo-buildpacks)
 - Run in [Kubernetes](https://kubernetes.io/)
   - Local Kubernetes
     - [Enable Kubernetes in Docker Desktop](https://docs.docker.com/desktop/kubernetes/)
@@ -33,9 +33,9 @@
       - `kubectl config get-contexts`
       - `kubectl get pod`
     - Deploy to Kubernetes
-      - `kubectl create deployment mvc-demo --image=fjb4/mvc-demo-buildpacks --port=8080 --replicas=1 --dry-run -o yaml > deploy.yaml`
+      - `kubectl create deployment dotnet-demo --image=fjb4/dotnet-demo-buildpacks --port=8080 --replicas=1 --dry-run -o yaml > deploy.yaml`
         - Edit deploy.yaml to inject environment variables and image pull policy
-      - `kubectl expose deployment/mvc-demo --type=LoadBalancer --port=80 --target-port=8080 --dry-run -o yaml > service.yaml`
+      - `kubectl expose deployment/dotnet-demo --type=LoadBalancer --port=80 --target-port=8080 --dry-run -o yaml > service.yaml`
       - View application in browser
       - Show application log updates as page is refreshed
         - `kubectl logs <pod-name>`
@@ -49,7 +49,7 @@
       - Connect to GKE cluster
       - `kubectl apply -f deploy.yaml`
       - `kubectl apply -f service.yaml`
-      - `kubectl scale deployment/mvc-demo --replicas=5`
+      - `kubectl scale deployment/dotnet-demo --replicas=5`
         - Show pod name and IP change when page refreshed
         - Show what happens when you delete a pod
           - `kubectl delete pod <pod-name>`
@@ -57,6 +57,7 @@
         - `kubectl logs <pod-name>`
     - Deploy SQL Server to Kubernetes
       - Update app to query SQL Server, rerun it
+        - `dotnet add package Microsoft.Data.SqlClient --version 3.0.0`
       - `kubectl apply -f sql-deploy.yaml`
       - Show SQL Server running in Kubernetes
         - `kubectl get pod`
