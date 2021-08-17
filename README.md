@@ -8,15 +8,30 @@
 
 ## Demo Script
 
-- Build app, run it
+- Build app, run it locally
   - `dotnet new mvc -o dotnet-demo`
   - `dotnet run`
   - Update app to show current time and environment variables, rerun it
 - Containerize the app, run in Docker
+  - Why containers?
+    - Provide a way to package up your application with its runtime environment and all dependencies
+      - Consistency across environments
+    - Similar to virtual machines but more lightweight, use fewer resources
+      - Containers share the host machine's operating system kernel
+    - Linux or Windows containers are available
+    - Container format is controlled by [Open Container Initiative](https://opencontainers.org/)
+      - Containers can be used in Docker or Kubernetes
   - [Dockerfile](https://docs.docker.com/engine/reference/builder/)
-    - `docker image build -t dotnet-demo-dockerfile .`
-    - `docker container run -p 80:80 dotnet-demo-dockerfile`
+    - Dockerfile is a text file that contains all the commands to build a container image
+      - TODO: Explain container vs image
+    - The `docker image build` command runs the commands in the Dockerfile and outputs an image
+      - Dockerfiles can be complex
+    - [Example of a Dockerfile](https://github.com/docker-library/python/blob/7217b72192c93ca2033051d7191d5689932d3912/3.6/alpine3.12/Dockerfile)
+    - Commands
+      - `docker image build -t dotnet-demo-dockerfile .`
+      - `docker container run -p 80:80 dotnet-demo-dockerfile`
   - [Buildpacks](https://buildpacks.io/)
+    - Buildpacks provide an alternative way to build container images
     - .NET
       - `rm Dockerfile`
       - `rm obj`
