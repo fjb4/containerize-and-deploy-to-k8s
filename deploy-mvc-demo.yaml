@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mvc-demo
+  name: mvc-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mvc-demo
+  template:
+    metadata:
+      labels:
+        app: mvc-demo
+    spec:
+      containers:
+      - image: fjb4/mvc-demo-buildpacks
+        name: mvc-demo-buildpacks
+        ports:
+        - containerPort: 8080
+        resources: {}
+        imagePullPolicy: Always
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
