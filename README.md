@@ -17,11 +17,14 @@
     - `docker image build -t dotnet-demo-dockerfile .`
     - `docker container run -p 80:80 dotnet-demo-dockerfile`
   - [Buildpacks](https://buildpacks.io/)
-    - `rm Dockerfile`
-    - `rm obj`
-    - `rm bin`
-    - `pack build dotnet-demo-buildpacks`
-    - `docker container run -p 80:80 dotnet-demo-buildpacks`
+    - .NET
+      - `rm Dockerfile`
+      - `rm obj`
+      - `rm bin`
+      - `pack build dotnet-demo-buildpacks`
+      - `docker container run -p 80:80 dotnet-demo-buildpacks`
+    - Java
+      - `pack build java-demo-buildpacks`
   - Push app to an [image registry](https://hub.docker.com/)
     - `docker image tag dotnet-demo-buildpacks fjb4/dotnet-demo-buildpacks`
     - `docker image push fjb4/dotnet-demo-buildpacks`
