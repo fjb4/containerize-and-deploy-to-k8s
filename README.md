@@ -11,15 +11,18 @@
 - Build app, run it
   - `dotnet new mvc -o mvc-demo`
   - `dotnet run`
+  - Update app to show current time and environment variables, rerun it
 - Containerize the app, run in Docker
   - [Dockerfile](https://docs.docker.com/engine/reference/builder/)
     - `docker image build -t mvc-demo-dockerfile .`
     - `docker container run -p 80:80 mvc-demo-dockerfile`
   - [Buildpacks](https://buildpacks.io/)
     - `rm Dockerfile`
+    - `rm obj`
+    - `rm bin`
     - `pack build mvc-demo-buildpacks`
     - `docker container run -p 80:80 mvc-demo-buildpacks`
-  - Push app to an image registry
+  - Push app to an [image registry](https://hub.docker.com/)
     - `docker image tag mvc-demo-buildpacks fjb4/mvc-demo-buildpacks`
     - `docker image push fjb4/mvc-demo-buildpacks`
     - [View image on Docker Hub](https://hub.docker.com/repository/docker/fjb4/mvc-demo-buildpacks)
@@ -31,9 +34,11 @@
       - `kubectl get pod`
     - Deploy to Kubernetes
       - `kubectl create deployment mvc-demo --image=fjb4/mvc-demo-buildpacks --port=8080 --replicas=1 --dry-run -o yaml > deploy.yaml`
+        - Edit deploy.yaml to inject environment variables and image pull policy
       - `kubectl expose deployment/mvc-demo --type=LoadBalancer --port=80 --target-port=8080 --dry-run -o yaml > service.yaml`
-      - `kubectl scale deployment/mvc-demo --replicas=5`
-      - `kubectl logs <pod-name>`
+      - View application in browser
+      - Show application log updates as page is refreshed
+        - `kubectl logs <pod-name>`
   - Cloud Kubernetes
     - Options
       - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
@@ -46,7 +51,14 @@
       - `kubectl apply -f service.yaml`
       - `kubectl scale deployment/mvc-demo --replicas=5`
         - Show pod name and IP change when page refreshed
-      - `kubectl logs <pod-name>`
+        - Show what happens when you delete a pod
+          - `kubectl delete pod <pod-name>`
+      - View logs
+        - `kubectl logs <pod-name>`
     - Deploy SQL Server to Kubernetes
+      - Update app to query SQL Server, rerun it
       - `kubectl apply -f sql-deploy.yaml`
+      - Show SQL Server running in Kubernetes
+        - `kubectl get pod`
+      - Refresh app, show that it is connecting to SQL Server
   
