@@ -14,12 +14,14 @@
   - Update app to show current time and environment variables, rerun it
 - Containerize the app, run in Docker
   - [Dockerfile](https://docs.docker.com/engine/reference/builder/)
+    - `rm obj`
+    - `rm bin`
     - `docker image build -t dotnet-demo-dockerfile .`
+    - `docker image list dotnet-demo-dockerfile`
     - `docker container run -p 80:80 dotnet-demo-dockerfile`
   - [Buildpacks](https://buildpacks.io/)
     - `rm Dockerfile`
-    - `rm obj`
-    - `rm bin`
+    - `pack`
     - `pack build dotnet-demo-buildpacks`
     - `docker container run -p 80:80 dotnet-demo-buildpacks`
   - Push app to an [image registry](https://hub.docker.com/)
