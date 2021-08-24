@@ -8,22 +8,28 @@
 
 ## Demo Script
 
+- Prerequisites
+  - Open terminal window
+  - Open browser
+    - [Script](https://github.com/fjb4/containerize-dotnet-and-deploy-to-k8s)
+    - [Slides](https://docs.google.com/presentation/d/1ZGOTGnkqnDKTvedK6seUzlX11ZO9zeJ9dzLhWLsafNw/edit?usp=sharing)
+    - [GKE](https://console.cloud.google.com/kubernetes)
+  - Open Docker, disable Kubernetes
+  - Authenticate with Docker Hub
+    - `docker login`
+  - Authenticate with Google Cloud
+    - `gcloud auth login`
+    - `gcloud config set project <project-name>`
 - Build app, run it locally
   - `dotnet new mvc -o dotnet-demo`
-  - `dotnet run`
+  - `dotnet watch run`
   - Update app to show current time and environment variables, rerun it
+    - Update Controllers/HomeController.cs
+    - Update Views/Home/Index.cshtml
+    - `dotnet add package Microsoft.Data.SqlClient --version 3.0.0`
 - Containerize the app, run in Docker
-  - Why containers?
-    - Provide a way to package up your application with its runtime environment and all dependencies
-      - Consistency across environments
-    - Similar to virtual machines but more lightweight, use fewer resources
-      - Containers share the host machine's operating system kernel
-    - Linux or Windows containers are available
-    - Container format is controlled by [Open Container Initiative](https://opencontainers.org/)
-      - Containers can be used in Docker or Kubernetes
   - [Dockerfile](https://docs.docker.com/engine/reference/builder/)
     - Dockerfile is a text file that contains all the commands to build a container image
-      - TODO: Explain container vs image
     - The `docker image build` command runs the commands in the Dockerfile and outputs an image
       - Dockerfiles can be complex
     - [Example of a Dockerfile](https://github.com/docker-library/python/blob/7217b72192c93ca2033051d7191d5689932d3912/3.6/alpine3.12/Dockerfile)
@@ -31,16 +37,21 @@
       - `rm obj`
       - `rm bin`
       - `docker image build -t dotnet-demo-dockerfile .`
+      - `docker image list dotnet-demo-dockerfile`
       - `docker container run -p 80:80 dotnet-demo-dockerfile`
   - [Buildpacks](https://buildpacks.io/)
-    - Buildpacks provide an alternative way to build container images
     - .NET
       - `rm Dockerfile`
       - `pack`
       - `pack build dotnet-demo-buildpacks`
-      - `docker container run -p 80:80 dotnet-demo-buildpacks`
+      - `docker image list dotnet-demo-buildpacks`
+        - note that it was created 41 years ago because, by default, buildpacks support reproducible builds
+      - `docker container run -p 80:8080 dotnet-demo-buildpacks`
     - Java
+      - `git clone https://github.com/spring-projects/spring-petclinic`
       - `pack build java-demo-buildpacks`
+      - `docker image list java-demo-buildpacks`
+      - `docker container run -p 80:8080 java-demo-buildpacks`
   - Push app to an [image registry](https://hub.docker.com/)
     - `docker image tag dotnet-demo-buildpacks fjb4/dotnet-demo-buildpacks`
     - `docker image push fjb4/dotnet-demo-buildpacks`
@@ -50,11 +61,14 @@
     - [Enable Kubernetes in Docker Desktop](https://docs.docker.com/desktop/kubernetes/)
     - Intro to [kubectl](https://kubernetes.io/docs/tasks/tools/)
       - `kubectl config get-contexts`
+      - `kubectl config use-context docker-desktop`
       - `kubectl get pod`
     - Deploy to Kubernetes
       - `kubectl create deployment dotnet-demo --image=fjb4/dotnet-demo-buildpacks --port=8080 --replicas=1 --dry-run -o yaml > deploy.yaml`
         - Edit deploy.yaml to inject environment variables and image pull policy
+      - `kubectl apply -f deploy.yaml`
       - `kubectl expose deployment/dotnet-demo --type=LoadBalancer --port=80 --target-port=8080 --dry-run -o yaml > service.yaml`
+      - `kubectl apply -f service.yaml 
       - View application in browser
       - Show application log updates as page is refreshed
         - `kubectl logs <pod-name>`
@@ -68,15 +82,13 @@
       - Connect to GKE cluster
       - `kubectl apply -f deploy.yaml`
       - `kubectl apply -f service.yaml`
-      - `kubectl scale deployment/dotnet-demo --replicas=5`
+      - `kubectl scale deployment/dotnet-demo --replicas=3`
         - Show pod name and IP change when page refreshed
         - Show what happens when you delete a pod
           - `kubectl delete pod <pod-name>`
       - View logs
         - `kubectl logs <pod-name>`
     - Deploy SQL Server to Kubernetes
-      - Update app to query SQL Server, rerun it
-        - `dotnet add package Microsoft.Data.SqlClient --version 3.0.0`
       - `kubectl apply -f sql-deploy.yaml`
       - Show SQL Server running in Kubernetes
         - `kubectl get pod`
