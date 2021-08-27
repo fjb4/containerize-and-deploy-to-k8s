@@ -68,7 +68,7 @@
         - Edit deploy.yaml to inject environment variables and image pull policy
       - `kubectl apply -f deploy.yaml`
       - `kubectl expose deployment/dotnet-demo --type=LoadBalancer --port=80 --target-port=8080 --dry-run -o yaml > service.yaml`
-      - `kubectl apply -f service.yaml 
+      - `kubectl apply -f service.yaml`
       - View application in browser
       - Show application log updates as page is refreshed
         - `kubectl logs <pod-name>`
