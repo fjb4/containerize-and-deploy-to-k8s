@@ -1,1 +1,95 @@
-docker run -ePORT=80 -p80:80 --name python-demo python-demo-buildpacks
+# Containerize Python and Deploy to Kubernetes
+
+## Tested with
+
+- [Docker Desktop 4.0.1](https://www.docker.com/products/docker-desktop)
+- [Pack CLI 0.20.0](https://buildpacks.io/docs/tools/pack/)
+
+## Demo Script
+
+- Prerequisites
+  - Open terminal window
+  - Open browser
+    - [Script](https://github.com/fjb4/containerize-and-deploy-to-k8s/tree/master/python-demo)
+    - [Slides](https://docs.google.com/presentation/d/1bPIqiS32vDTEj9_eC_TEdqv8ZMWa8zfp0WAtibPf_ps/edit?usp=sharing)
+    - [GKE](https://console.cloud.google.com/kubernetes)
+  - Open Docker, disable Kubernetes
+  - Authenticate with Docker Hub
+    - `docker login`
+  - Authenticate with Google Cloud
+    - `gcloud auth login`
+    - `gcloud config set project <project-name>`
+- Build app, run it locally
+  - `dotnet new mvc -o python-demo`
+  - `dotnet watch run`
+  - Update app to show current time and environment variables, rerun it
+    - Update Controllers/HomeController.cs
+    - Update Views/Home/Index.cshtml
+    - `dotnet add package Microsoft.Data.SqlClient --version 3.0.0`
+- Containerize the app, run in Docker
+  - [Dockerfile](https://docs.docker.com/engine/reference/builder/)
+    - Dockerfile is a text file that contains all the commands to build a container image
+    - The `docker image build` command runs the commands in the Dockerfile and outputs an image
+      - Dockerfiles can be complex
+    - [Example of a Dockerfile](https://github.com/docker-library/python/blob/7217b72192c93ca2033051d7191d5689932d3912/3.6/alpine3.12/Dockerfile)
+    - Commands
+      - `rm obj`
+      - `rm bin`
+      - `docker image build -t python-demo-dockerfile .`
+      - `docker image list python-demo-dockerfile`
+      - `docker container run -ePORT=80 -p80:80 --name python-demo python-demo-dockerfile`
+  - [Buildpacks](https://buildpacks.io/)
+    - .NET
+      - `rm Dockerfile`
+      - `pack`
+      - `pack build python-demo-buildpacks`
+      - `docker image list python-demo-buildpacks`
+        - note that it was created 41 years ago because, by default, buildpacks support reproducible builds
+      - `docker container run -ePORT=80 -p80:80 --name python-demo python-demo-buildpacks`
+    - Java
+      - `git clone https://github.com/spring-projects/spring-petclinic`
+      - `pack build java-demo-buildpacks`
+      - `docker image list java-demo-buildpacks`
+      - `docker container run -p 80:8080 java-demo-buildpacks`
+  - Push app to an [image registry](https://hub.docker.com/)
+    - `docker image tag python-demo-buildpacks fjb4/python-demo-buildpacks`
+    - `docker image push fjb4/python-demo-buildpacks`
+    - [View image on Docker Hub](https://hub.docker.com/repository/docker/fjb4/python-demo-buildpacks)
+- Run in [Kubernetes](https://kubernetes.io/)
+  - Local Kubernetes
+    - [Enable Kubernetes in Docker Desktop](https://docs.docker.com/desktop/kubernetes/)
+    - Intro to [kubectl](https://kubernetes.io/docs/tasks/tools/)
+      - `kubectl config get-contexts`
+      - `kubectl config use-context docker-desktop`
+      - `kubectl get pod`
+    - Deploy to Kubernetes
+      - `kubectl create deployment python-demo --image=fjb4/python-demo-buildpacks --port=8080 --replicas=1 --dry-run -o yaml > deploy.yaml`
+        - Edit deploy.yaml to inject environment variables and image pull policy
+      - `kubectl apply -f deploy.yaml`
+      - `kubectl expose deployment/python-demo --type=LoadBalancer --port=80 --target-port=8080 --dry-run -o yaml > service.yaml`
+      - `kubectl apply -f service.yaml`
+      - View application in browser
+      - Show application log updates as page is refreshed
+        - `kubectl logs <pod-name>`
+  - Cloud Kubernetes
+    - Options
+      - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
+      - [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/services/kubernetes-service)
+      - [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks)
+    - Deploy to GKE
+      - [Create GKE cluster](https://console.cloud.google.com)
+      - Connect to GKE cluster
+      - `kubectl apply -f deploy.yaml`
+      - `kubectl apply -f service.yaml`
+      - `kubectl scale deployment/python-demo --replicas=3`
+        - Show pod name and IP change when page refreshed
+        - Show what happens when you delete a pod
+          - `kubectl delete pod <pod-name>`
+      - View logs
+        - `kubectl logs <pod-name>`
+    - Deploy SQL Server to Kubernetes
+      - `kubectl apply -f sql-deploy.yaml`
+      - Show SQL Server running in Kubernetes
+        - `kubectl get pod`
+      - Refresh app, show that it is connecting to SQL Server
+  
