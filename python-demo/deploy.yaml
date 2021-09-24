@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: python-demo
+  name: python-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-demo
+  template:
+    metadata:
+      labels:
+        app: python-demo
+    spec:
+      containers:
+      - image: fjb4/python-demo-buildpacks
+        name: python-demo-buildpacks
+        ports:
+        - containerPort: 8080
+        resources: {}
+        imagePullPolicy: Always
+        env:
+          - name: PORT
+            value: '8080'
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
