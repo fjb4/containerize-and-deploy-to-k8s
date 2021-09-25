@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  creationTimestamp: null
   labels:
     app: python-demo
   name: python-demo
@@ -9,22 +10,23 @@ spec:
   selector:
     matchLabels:
       app: python-demo
+  strategy: {}
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: python-demo
     spec:
       containers:
-      - image: fjb4/python-demo-buildpacks
-        name: python-demo-buildpacks
+      - image: fjb4/python-demo
+        name: python-demo
         ports:
-        - containerPort: 8080
-        resources: {}
+        - containerPort: 5000
         imagePullPolicy: Always
         env:
-          - name: PORT
-            value: '8080'
-          - name: POD_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
+        - name: PORT 
+          value: '5000'
+        - name: POD_NAME 
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name

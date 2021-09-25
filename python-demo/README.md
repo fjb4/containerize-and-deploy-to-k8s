@@ -20,12 +20,9 @@
     - `gcloud auth login`
     - `gcloud config set project <project-name>`
 - Build app, run it locally
-  - `dotnet new mvc -o python-demo`
-  - `dotnet watch run`
-  - Update app to show current time and environment variables, rerun it
-    - Update Controllers/HomeController.cs
-    - Update Views/Home/Index.cshtml
-    - `dotnet add package Microsoft.Data.SqlClient --version 3.0.0`
+  - Create app.py and requirements.txt files
+  - `flask run`
+  - [View application](http://localhost:5000)
 - Containerize the app, run in Docker
   - [Dockerfile](https://docs.docker.com/engine/reference/builder/)
     - Dockerfile is a text file that contains all the commands to build a container image
@@ -33,27 +30,27 @@
       - Dockerfiles can be complex
     - [Example of a Dockerfile](https://github.com/docker-library/python/blob/7217b72192c93ca2033051d7191d5689932d3912/3.6/alpine3.12/Dockerfile)
     - Commands
-      - `rm obj`
-      - `rm bin`
-      - `docker image build -t python-demo-dockerfile .`
-      - `docker image list python-demo-dockerfile`
-      - `docker container run -ePORT=80 -p80:80 --name python-demo python-demo-dockerfile`
+      - `docker image build -t fjb4/python-demo .`
+      - `docker image list fjb4/python-demo`
+      - `docker container run --interactive --tty --env PORT=5000 --publish 5000:5000 --rm fjb4/python-demo`
+      - `curl http://localhost:5000`
   - [Buildpacks](https://buildpacks.io/)
-    - .NET
+    - Python
       - `rm Dockerfile`
-      - `pack`
-      - `pack build python-demo-buildpacks`
+      - Copy Procfile & project.toml
+      - `pack build python-demo`
       - `docker image list python-demo-buildpacks`
         - note that it was created 41 years ago because, by default, buildpacks support reproducible builds
-      - `docker container run -ePORT=80 -p80:80 --name python-demo python-demo-buildpacks`
+      - `docker container run --interactive --tty --env PORT=5000 --publish 5000:5000 --rm fjb4/python-demo`
+      - `curl http://localhost:5000`
     - Java
       - `git clone https://github.com/spring-projects/spring-petclinic`
       - `pack build java-demo-buildpacks`
       - `docker image list java-demo-buildpacks`
       - `docker container run -p 80:8080 java-demo-buildpacks`
   - Push app to an [image registry](https://hub.docker.com/)
-    - `docker image tag python-demo-buildpacks fjb4/python-demo-buildpacks`
-    - `docker image push fjb4/python-demo-buildpacks`
+    - `docker image tag python-demo fjb4/python-demo`
+    - `docker image push fjb4/python-demo`
     - [View image on Docker Hub](https://hub.docker.com/repository/docker/fjb4/python-demo-buildpacks)
 - Run in [Kubernetes](https://kubernetes.io/)
   - Local Kubernetes
@@ -63,12 +60,12 @@
       - `kubectl config use-context docker-desktop`
       - `kubectl get pod`
     - Deploy to Kubernetes
-      - `kubectl create deployment python-demo --image=fjb4/python-demo-buildpacks --port=8080 --replicas=1 --dry-run -o yaml > deploy.yaml`
-        - Edit deploy.yaml to inject environment variables and image pull policy
+      - `kubectl create deployment python-demo --image=fjb4/python-demo --port=5000 --replicas=1 --dry-run -o yaml > deploy.yaml`
+        - Edit deploy.yaml to inject environment variable and image pull policy
       - `kubectl apply -f deploy.yaml`
-      - `kubectl expose deployment/python-demo --type=LoadBalancer --port=80 --target-port=8080 --dry-run -o yaml > service.yaml`
+      - `kubectl expose deployment/python-demo --type=LoadBalancer --port=5000 --dry-run -o yaml > service.yaml`
       - `kubectl apply -f service.yaml`
-      - View application in browser
+      - `curl http://localhost:5000`
       - Show application log updates as page is refreshed
         - `kubectl logs <pod-name>`
   - Cloud Kubernetes
@@ -87,9 +84,3 @@
           - `kubectl delete pod <pod-name>`
       - View logs
         - `kubectl logs <pod-name>`
-    - Deploy SQL Server to Kubernetes
-      - `kubectl apply -f sql-deploy.yaml`
-      - Show SQL Server running in Kubernetes
-        - `kubectl get pod`
-      - Refresh app, show that it is connecting to SQL Server
-  

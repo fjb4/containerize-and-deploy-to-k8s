@@ -7,9 +7,9 @@ metadata:
   name: python-demo
 spec:
   ports:
-  - port: 80
+  - port: 5000
     protocol: TCP
-    targetPort: 8080
+    targetPort: 5000
   selector:
     app: python-demo
   type: LoadBalancer
