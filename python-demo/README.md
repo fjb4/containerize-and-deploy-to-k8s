@@ -38,7 +38,7 @@
     - Python
       - `rm Dockerfile`
       - Copy Procfile & project.toml
-      - `pack build python-demo`
+      - `pack build fjb4/python-demo`
       - `docker image list python-demo-buildpacks`
         - note that it was created 41 years ago because, by default, buildpacks support reproducible builds
       - `docker container run --interactive --tty --env PORT=5000 --publish 5000:5000 --rm fjb4/python-demo`
